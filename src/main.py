@@ -86,7 +86,17 @@ def update_package_index(package_dir, package_name, version, archive_url):
 
 def upsert_package(root_dir, package_name, version, archive_url):
     package_name_normalized = normalize(package_name)
+    print(f"Upserting package {package_name_normalized} version {version} from {archive_url}.")
+
+    # ensure the root directory exists
+    print(f"Ensuring root directory {root_dir} exists.")
+    ensure_dir_exists(root_dir)
+
+    # update the root index
+    print(f"Updating root index at {os.path.join(root_dir, 'index.html')}.")
     update_root_index(os.path.join(root_dir, "index.html"), package_name_normalized)
+
+    
     package_dir = os.path.join(root_dir, package_name_normalized)
     update_package_index(package_dir, package_name_normalized, version, archive_url)
 
