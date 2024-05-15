@@ -31,9 +31,9 @@ jobs:
 
             - name: Display Python version
               env:
-                python_service_name: "{{ inputs.name }}"
-                python_service_version: "{{ inputs.version }}"
-                python_service_archive_url: "{{ inputs.archive_url }}"
+                python_service_name: "${{ inputs.name }}"
+                python_service_version: "${{ inputs.version }}"
+                python_service_archive_url: "${{ inputs.archive_url }}"
                 root_dir: "pypi"
               run: python src/main.py
 
