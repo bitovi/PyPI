@@ -56,8 +56,10 @@ def update_package_index(package_dir, package_name, version, archive_url):
         print(f"Updating package index at {package_index_path}.")
 
         # Generate the hash value for the archive URL
-        hash_value = generate_file_hash(archive_url)
-        link = f"<a href='{archive_url}#sha256={hash_value}'>{archive_url}</a>"
+        # todo: fetch the file to generate the hash?
+        # hash_value = generate_file_hash(archive_url)
+        # link = f"<a href='{archive_url}#sha256={hash_value}'>{archive_url}</a>"
+        link = f"<a href='{archive_url}'>{archive_url}</a>"
         version_info = f"({version}, {datetime.now().isoformat()})"
         print(f"Link: {link}")
         print(f"Version info: {version_info}")
