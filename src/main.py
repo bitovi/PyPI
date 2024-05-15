@@ -133,4 +133,9 @@ if __name__ == "__main__":
     version = os.environ.get('python_service_version')
     archive_url = os.environ.get('python_service_archive_url')
 
+    print(f"root_dir: {root_dir}")
+    print(f"package_name: {package_name}")
+    print(f"version: {version}")
+    print(f"archive_url: {archive_url}")
+    print("calling upsert_package")
     upsert_package(root_dir, package_name, version, archive_url)
