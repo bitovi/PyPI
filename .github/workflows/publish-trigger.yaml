@@ -1,0 +1,65 @@
+name: Handle PyPI Publish triggers
+
+# output_object="{\"name\": \"$name\", \"version\": \"$version\", \"archive_url\": \"$archive_url\"}"
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Name of the package'
+        required: true
+        default: 'pypi-package'
+      version:
+        description: 'Version of the package'
+        required: true
+        default: '0.0.1'
+      archive_url:
+        description: 'URL to the archive of the package'
+        required: true
+        default: ''
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: 3.12
+
+            - name: Display Python version
+              env:
+                python_service_name: "{{ inputs.name }}"
+                python_service_version: "{{ inputs.version }}"
+                python_service_archive_url: "{{ inputs.archive_url }}"
+                root_dir: "pypi"
+              run: python src/main.py
+
+            # bash step to output directory contents
+            - name: review directory contents
+              id: list-directory
+              shell: bash
+              #   env: {}
+              run: |
+                echo "pwd"
+                pwd
+                
+                echo "ls -la"
+                ls -la
+
+                echo "ls -la pypi"
+                ls -la pypi
+
+                echo "git status"
+                git status
+
+                echo "git diff"
+                git diff
+
+            - name: Archive
+              uses: actions/upload-artifact@v4
+              with:
+                name: ${{ inputs.name }}-${{ inputs.version }}
+                path: pypi/
