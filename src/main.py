@@ -43,15 +43,27 @@ def update_root_index(index_path, package_name):
 
 def update_package_index(package_dir, package_name, version, archive_url):
     try:
+        print("update_package_index:")
+        print(f"package_dir: {package_dir}")
+        print(f"package_name: {package_name}")
+        print(f"version: {version}")
+        print(f"archive_url: {archive_url}")
+
+        # Ensure the package directory exists
+        print(f"Ensuring package directory {package_dir} exists.")
         ensure_dir_exists(package_dir)
         package_index_path = os.path.join(package_dir, "index.html")
+        print(f"Updating package index at {package_index_path}.")
 
         # Generate the hash value for the archive URL
         hash_value = generate_file_hash(archive_url)
-        link = f"<a href='{archive_url}#sha256={hash_value}'>{os.path.basename(archive_url)}</a>"
+        link = f"<a href='{archive_url}#sha256={hash_value}'>{archive_url}</a>"
         version_info = f"({version}, {datetime.now().isoformat()})"
+        print(f"Link: {link}")
+        print(f"Version info: {version_info}")
 
         # Read the existing HTML content if the file exists
+        print(f"Reading existing package index at {package_index_path}.")
         if os.path.exists(package_index_path):
             with open(package_index_path, 'r') as file:
                 index_html = file.read()
@@ -96,7 +108,7 @@ def upsert_package(root_dir, package_name, version, archive_url):
     print(f"Updating root index at {os.path.join(root_dir, 'index.html')}.")
     update_root_index(os.path.join(root_dir, "index.html"), package_name_normalized)
 
-    
+
     package_dir = os.path.join(root_dir, package_name_normalized)
     update_package_index(package_dir, package_name_normalized, version, archive_url)
 
