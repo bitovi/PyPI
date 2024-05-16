@@ -67,15 +67,22 @@ def update_package_index(package_dir, package_name, version, archive_url):
         # Read the existing HTML content if the file exists
         print(f"Reading existing package index at {package_index_path}.")
         if os.path.exists(package_index_path):
+            print(f"Package index exists at {package_index_path}.")
             with open(package_index_path, 'r') as file:
+                print(f"Reading package index at {package_index_path}.")
                 index_html = file.read()
             
             # Check if the version is already listed in the HTML content
+            print(f"Checking if link is in index_html.")
             if link not in index_html:
+                print(f"Link not in index_html.")
                 # Insert the new link and version info before the closing ul tag
                 index_html = index_html.replace("</ul>", f"<li>{link} {version_info}</li></ul>")
+            else:
+                print(f"Link already in index_html.")
         else:
             # Create new HTML content if the file doesn't exist
+            print(f"Package index does not exist at {package_index_path}.")
             index_html = f"""<!DOCTYPE html>
 <html>
     <head>
@@ -91,7 +98,9 @@ def update_package_index(package_dir, package_name, version, archive_url):
 </html>"""
 
         # Write the updated or new HTML content to the file
+        print(f"Writing updated package index to {package_index_path}. before open")
         with open(package_index_path, 'w') as file:
+            print(f"Writing package index to {package_index_path}.")
             file.write(index_html)
         
         print(f"Upserted version {version} into {package_dir} successfully.")
