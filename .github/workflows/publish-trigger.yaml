@@ -57,9 +57,20 @@ jobs:
             git status
 
             git_status_before=$(git status)
+            echo "git_status_before:"
+            echo "$git_status_before"
+
+            git_status_before_grep=$(echo $git_status_before | grep 'nothing to commit')
+            git_status_before_grep_exit_code=$?
+            echo "git_status_before_grep:"
+            echo "$git_status_before_grep"
+            echo "git_status_before_grep_exit_code: $git_status_before_grep_exit_code"
+
+            # if the exit code is greater than zero or if the string is empty, then there are changes to commit
+            there_are_changes_to_commit=[ $git_status_before_grep_exit_code -gt 0 ] || [ -z "$git_status_before_grep"
 
             # check if there are any changes to commit
-            if [ -z "$(echo $git_status_before | grep 'nothing to commit')" ]; then
+            if [ "$there_are_changes_to_commit" == "false" ]; then
               echo "No changes to commit"
               exit 0
             fi
