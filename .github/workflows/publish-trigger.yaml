@@ -46,7 +46,7 @@ jobs:
             python_service_version: "${{ inputs.version }}"
             python_service_archive_url: "${{ inputs.archive_url }}"
             root_dir: "pypi"
-            base_url: "https://bitovi.github.io/PyPi"
+            base_url: "https://bitovi.github.io/PyPI"
           run: python src/main.py
 
         # bash step to output directory contents
