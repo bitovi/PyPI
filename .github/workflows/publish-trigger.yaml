@@ -67,10 +67,10 @@ jobs:
             echo "git_status_before_grep_exit_code: $git_status_before_grep_exit_code"
 
             # if the exit code is greater than zero or if the string is empty, then there are changes to commit
-            there_are_changes_to_commit=[ $git_status_before_grep_exit_code -gt 0 ] || [ -z "$git_status_before_grep" ]
+            # there_are_changes_to_commit=[ $git_status_before_grep_exit_code -gt 0 ] || [ -z "$git_status_before_grep" ]
 
             # check if there are any changes to commit
-            if [ "$there_are_changes_to_commit" == "false" ]; then
+            if [ $git_status_before_grep_exit_code -eq 0 ] || [ -z "$git_status_before_grep" ]; then
               echo "No changes to commit"
               exit 0
             fi
