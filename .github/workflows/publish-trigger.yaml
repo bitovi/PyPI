@@ -49,41 +49,38 @@ jobs:
             base_url: "https://bitovi.github.io/PyPI"
           run: python src/main.py
 
-        # bash step to output directory contents
-        - name: review directory contents
-          id: list-directory
-          shell: bash
-          #   env: {}
+        - name: commit changes
           run: |
-            echo "pwd"
-            pwd
-            
-            echo "ls -la"
-            ls -la
-
-            echo "ls -la pypi"
-            ls -la pypi
-
-            echo "recursive ls -la pypi"
-            ls -laR pypi
-
-            echo "git status"
+            echo "configure git"
+            git config user.email "github-actions-triggers-allowed[bot]@users.noreply.github.com"
+            git config user.name "github-actions[bot]"
+  
+            echo "git status - before"
             git status
 
-            echo "git diff"
-            git diff
+            git checkout -b "pypi-${{ github.run_id }}"
+            
+            echo "git add ${PLAN_PATH}"
+            git add ${PLAN_PATH}
+    
+            # tmp file for commit message
+            commit_message_file="$(mktemp)"
+            echo "PyPI Package Upsert" > "${commit_message_file}"
+            echo "{ \"name\": \"${{ inputs.name }}\", \"version\": \"${{ inputs.version }}\", \"archive_url\": \"${{ inputs.archive_url }}\" }" >> "${commit_message_file}"
 
-        - name: Archive
-          uses: actions/upload-artifact@v4
-          with:
-            name: ${{ inputs.name }}-${{ inputs.version }}
-            path: pypi/
+            commit_message="$(cat ${commit_message_file})"
 
-        - name: 'upload'
-          uses: actions/upload-pages-artifact@v3
-          with: 
-            path: pypi/
-
-        - name: Deploy to GitHub Pages
-          id: deployment
-          uses: actions/deploy-pages@v4
+            echo "commit message:"
+            echo "${commit_message}"
+    
+            git commit -m "${commit_message}"
+    
+            echo "git status - after"
+            git status
+    
+    
+            echo "git log"
+            git log -n 3
+    
+            echo "git push"
+            git push -u origin HEAD
