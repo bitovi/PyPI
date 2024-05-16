@@ -56,6 +56,14 @@ jobs:
             echo "git status - before"
             git status
 
+            git_status_before=$(git status)
+
+            # check if there are any changes to commit
+            if [ -z "$(echo $git_status_before | grep 'nothing to commit')" ]; then
+              echo "No changes to commit"
+              exit 0
+            fi
+
             branch_is_new=""
             inputs_commit_branch_exists=$(git branch --list "${{ inputs.commit_branch }}")
             if [ "${{ inputs.commit_branch }}" == "auto" ]; then
@@ -91,6 +99,8 @@ jobs:
     
             echo "git status - after"
             git status
+
+
     
             echo "git push"
             if [ "${branch_is_new}" == "true" ]; then
