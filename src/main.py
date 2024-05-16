@@ -19,7 +19,7 @@ def generate_file_hash(file_path, hash_function="sha256"):
             hash_func.update(chunk)
     return hash_func.hexdigest()
 
-def update_root_index(index_path, package_name):
+def update_root_index(index_path, package_name, base_url):
     try:
         # Read the existing index data
         if os.path.exists(index_path):
@@ -31,7 +31,7 @@ def update_root_index(index_path, package_name):
         # Check if the package name already exists in the index
         if f'href="/{package_name}/"' not in index_html:
             # Insert the new package link before the closing body tag
-            index_html = index_html.replace("</body>", f'<a href="/{package_name}/">{package_name}</a></body>')
+            index_html = index_html.replace("</body>", f'<a href="{base_url}/{package_name}/">{package_name}</a></body>')
         
         # Write the updated index data back to the file
         with open(index_path, 'w') as file:
@@ -98,7 +98,7 @@ def update_package_index(package_dir, package_name, version, archive_url):
     except Exception as e:
         print(f"An error occurred while upserting the package index: {e}")
 
-def upsert_package(root_dir, package_name, version, archive_url):
+def upsert_package(root_dir, package_name, version, archive_url, base_url):
     package_name_normalized = normalize(package_name)
     print(f"Upserting package {package_name_normalized} version {version} from {archive_url}.")
 
@@ -108,7 +108,7 @@ def upsert_package(root_dir, package_name, version, archive_url):
 
     # update the root index
     print(f"Updating root index at {os.path.join(root_dir, 'index.html')}.")
-    update_root_index(os.path.join(root_dir, "index.html"), package_name_normalized)
+    update_root_index(os.path.join(root_dir, "index.html"), package_name_normalized, base_url)
 
 
     package_dir = os.path.join(root_dir, package_name_normalized)
@@ -139,5 +139,6 @@ if __name__ == "__main__":
     print(f"package_name: {package_name}")
     print(f"version: {version}")
     print(f"archive_url: {archive_url}")
+    base_url = os.environ.get('base_url')
     print("calling upsert_package")
-    upsert_package(root_dir, package_name, version, archive_url)
+    upsert_package(root_dir, package_name, version, archive_url, base_url)

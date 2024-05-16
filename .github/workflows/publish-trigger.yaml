@@ -40,12 +40,13 @@ jobs:
           with:
             python-version: 3.12
 
-        - name: Display Python version
+        - name: upsert-package
           env:
             python_service_name: "${{ inputs.name }}"
             python_service_version: "${{ inputs.version }}"
             python_service_archive_url: "${{ inputs.archive_url }}"
             root_dir: "pypi"
+            base_url: "https://bitovi.github.io/PyPi"
           run: python src/main.py
 
         # bash step to output directory contents
