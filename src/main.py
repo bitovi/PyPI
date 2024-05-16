@@ -66,8 +66,12 @@ def update_package_index(package_dir, package_name, version, archive_url):
         # Generate the hash value for the archive URL
         # todo: fetch the file to generate the hash?
         # hash_value = generate_file_hash(archive_url)
-        # link = f"<a href='{archive_url}#sha256={hash_value}'>{archive_url}</a>"
-        link = f"<a href='{archive_url}'>{archive_url}</a>"
+        # use version for testing
+        hash_value = version
+        
+
+        # Generate the link and version info
+        link = f"<a href='{archive_url}#sha256={hash_value}'>{archive_url}</a>"
         version_info = f"({version}, {datetime.now().isoformat()})"
         print(f"Link: {link}")
         print(f"Version info: {version_info}")
@@ -130,14 +134,6 @@ def upsert_package(root_dir, package_name, version, archive_url, base_url):
 
     package_dir = os.path.join(root_dir, package_name_normalized)
     update_package_index(package_dir, package_name_normalized, version, archive_url)
-
-# # Example usage
-# root_dir = 'pypi'
-# package_name = 'foo'
-# version = '1.0.0'
-# archive_url = 'https://github.com/path/to/archive.tgz'
-
-# upsert_package(root_dir, package_name, version, archive_url)
 
 # set up main
 if __name__ == "__main__":
