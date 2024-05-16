@@ -60,8 +60,8 @@ jobs:
 
             git checkout -b "pypi-${{ github.run_id }}"
             
-            echo "git add ${PLAN_PATH}"
-            git add ${PLAN_PATH}
+            echo "git add pypi/."
+            git add pypi/.
     
             # tmp file for commit message
             commit_message_file="$(mktemp)"
