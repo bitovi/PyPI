@@ -79,6 +79,9 @@ jobs:
               exit 0
             fi
 
+            current_branch_name="$(git rev-parse --abbrev-ref HEAD)"
+            echo "current_branch_name=${current_branch_name}"
+
             branch_is_new=""
             inputs_commit_branch_exists=$(git branch --list "${{ inputs.commit_branch }}")
             if [ "${{ inputs.commit_branch }}" == "auto" ]; then
@@ -137,9 +140,6 @@ jobs:
 
             This PR was created by a [workflow](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${{ github.run_id }}) triggered by a commit [${GITHUB_SHA}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}).
             "
-
-            current_branch_name="$(git rev-parse --abbrev-ref HEAD)"
-            echo "current_branch_name=${current_branch_name}"
 
             target_branch="${GITHUB_BASE_REF}"
             echo "gh pr create --title \"$pr_title\" --body \"$pr_body\" --base $current_branch_name"
