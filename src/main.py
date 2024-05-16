@@ -22,16 +22,24 @@ def generate_file_hash(file_path, hash_function="sha256"):
 def update_root_index(index_path, package_name, base_url):
     try:
         # Read the existing index data
+        print(f"Reading existing index at {index_path}.")
         if os.path.exists(index_path):
+            print(f"Index exists at {index_path}.")
+
+            print(f"Opening index at {index_path}.")
             with open(index_path, 'r') as file:
+                print(f"Reading index at {index_path}.")
                 index_html = file.read()
         else:
+            print(f"Index does not exist at {index_path}.")
             index_html = "<!DOCTYPE html><html><body></body></html>"
 
         # Check if the package name already exists in the index
-        if f'href="/{package_name}/"' not in index_html:
+        full_url = f"{base_url}/{package_name}/"
+        print(f"Checking if package name is in index.")
+        if f'href="{full_url}"' not in index_html:
             # Insert the new package link before the closing body tag
-            index_html = index_html.replace("</body>", f'<a href="{base_url}/{package_name}/">{package_name}</a></body>')
+            index_html = index_html.replace("</body>", f'<a href="{full_url}">{package_name}</a></body>')
         
         # Write the updated index data back to the file
         with open(index_path, 'w') as file:
