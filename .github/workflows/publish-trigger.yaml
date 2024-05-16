@@ -20,49 +20,69 @@ on:
 jobs:
     publish:
         runs-on: ubuntu-latest
+        
+        # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+        permissions:
+          pages: write      # to deploy to Pages
+          id-token: write   # to verify the deployment originates from an appropriate source
+
+        # Deploy to the github-pages environment
+        environment:
+          name: github-pages
+          url: ${{ steps.deployment.outputs.page_url }}
+
         steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+        - name: Checkout
+          uses: actions/checkout@v4
 
-            - name: Set up Python
-              uses: actions/setup-python@v5
-              with:
-                python-version: 3.12
+        - name: Set up Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: 3.12
 
-            - name: Display Python version
-              env:
-                python_service_name: "${{ inputs.name }}"
-                python_service_version: "${{ inputs.version }}"
-                python_service_archive_url: "${{ inputs.archive_url }}"
-                root_dir: "pypi"
-              run: python src/main.py
+        - name: Display Python version
+          env:
+            python_service_name: "${{ inputs.name }}"
+            python_service_version: "${{ inputs.version }}"
+            python_service_archive_url: "${{ inputs.archive_url }}"
+            root_dir: "pypi"
+          run: python src/main.py
 
-            # bash step to output directory contents
-            - name: review directory contents
-              id: list-directory
-              shell: bash
-              #   env: {}
-              run: |
-                echo "pwd"
-                pwd
-                
-                echo "ls -la"
-                ls -la
+        # bash step to output directory contents
+        - name: review directory contents
+          id: list-directory
+          shell: bash
+          #   env: {}
+          run: |
+            echo "pwd"
+            pwd
+            
+            echo "ls -la"
+            ls -la
 
-                echo "ls -la pypi"
-                ls -la pypi
+            echo "ls -la pypi"
+            ls -la pypi
 
-                echo "recursive ls -la pypi"
-                ls -laR pypi
+            echo "recursive ls -la pypi"
+            ls -laR pypi
 
-                echo "git status"
-                git status
+            echo "git status"
+            git status
 
-                echo "git diff"
-                git diff
+            echo "git diff"
+            git diff
 
-            - name: Archive
-              uses: actions/upload-artifact@v4
-              with:
-                name: ${{ inputs.name }}-${{ inputs.version }}
-                path: pypi/
+        - name: Archive
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ inputs.name }}-${{ inputs.version }}
+            path: pypi/
+
+        - name: 'upload'
+          uses: actions/upload-pages-artifact@v3
+          with: 
+            path: pypi/
+
+        - name: Deploy to GitHub Pages
+          id: deployment
+          uses: actions/deploy-pages@v4
