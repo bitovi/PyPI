@@ -7,15 +7,16 @@ on:
       name:
         description: 'Name of the package'
         required: true
-        default: 'pypi-package'
       version:
         description: 'Version of the package'
         required: true
-        default: '0.0.1'
       archive_url:
         description: 'URL to the archive of the package'
         required: true
-        default: ''
+      commit_branch:
+        description: 'Branch to commit the changes to. Special word "auto" will create a new branch with the name "pypi-{github.run_id}"'
+        required: false
+        default: 'main'
 
 
 
@@ -47,6 +48,7 @@ jobs:
             python_service_name: "${{ inputs.name }}"
             python_service_version: "${{ inputs.version }}"
             python_service_archive_url: "${{ inputs.archive_url }}"
+            commit_branch: "${{ inputs.commit_branch }}"
             root_dir: "pypi"
             base_url: "https://bitovi.github.io/PyPI"
           run: python src/main.py
@@ -60,7 +62,23 @@ jobs:
             echo "git status - before"
             git status
 
-            git checkout -b "pypi-${{ github.run_id }}"
+            branch_is_new=""
+            inputs_commit_branch_exists=$(git branch --list "${{ inputs.commit_branch }}")
+            if [ "${{ inputs.commit_branch }}" == "auto" ]; then
+              echo "git checkout -b pypi-${{ github.run_id }}"
+              git checkout -b "pypi-${{ github.run_id }}"
+              branch_is_new="true"
+            else
+              # check if branch exists remotely, and create it if it does not
+              if [ -z "${inputs_commit_branch_exists}" ]; then
+                echo "git checkout -b ${{ inputs.commit_branch }}"
+                git checkout -b "${{ inputs.commit_branch }}"
+                branch_is_new="true"
+              else
+                echo "git checkout ${{ inputs.commit_branch }}"
+                git checkout "${{ inputs.commit_branch }}"
+              fi
+            fi
             
             echo "git add pypi/."
             git add pypi/.
@@ -80,9 +98,9 @@ jobs:
             echo "git status - after"
             git status
     
-    
-            echo "git log"
-            git log -n 3
-    
             echo "git push"
-            git push -u origin HEAD
+            if [ "${branch_is_new}" == "true" ]; then
+              git push -u origin HEAD
+            else
+              git push
+            fi
