@@ -14,9 +14,9 @@ on:
         description: 'URL to the archive of the package'
         required: true
       commit_branch:
-        description: 'Branch to commit the changes to. Special word "auto" will create a new branch with the name "pypi-{github.run_id}"'
+        description: 'Branch to commit the changes to. Special word "auto" (default) will create a new branch and PR with the name "pypi-{github.run_id}"'
         required: false
-        default: 'main'
+        default: 'auto'
 
 
 
@@ -25,7 +25,7 @@ jobs:
         runs-on: ubuntu-latest
 
         permissions:
-          # pull-requests: write
+          pull-requests: write
           contents: write
 
         steps:
@@ -121,3 +121,26 @@ jobs:
             else
               git push
             fi
+
+
+            # create a PR
+            echo "creating PR"
+            pr_title="PyPI - Upsert Package: ${{ inputs.name }} - ${{ inputs.version }}"
+            pr_body="The package has a version update to be published to PyPI.
+            {
+              \"name\": \"${{ inputs.name }}\",
+              \"version\": \"${{ inputs.version }}\",
+              \"archive_url\": \"${{ inputs.archive_url }}\"
+            }
+
+            This PR was created by a [workflow](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${{ github.run_id }}) triggered by a commit [${GITHUB_SHA}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}).
+            "
+
+            current_branch_name="$(git rev-parse --abbrev-ref HEAD)"
+            echo "current_branch_name=${current_branch_name}"
+
+            target_branch="${GITHUB_BASE_REF}"
+            echo "gh pr create --title \"$pr_title\" --body \"$pr_body\" --base $current_branch_name"
+            gh pr create --title "$pr_title" --body "$pr_body" --base $current_branch_name
+
+         
