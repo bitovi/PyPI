@@ -60,8 +60,10 @@ jobs:
             echo "git_status_before:"
             echo "$git_status_before"
 
+            set +e
             git_status_before_grep=$(echo $git_status_before | grep 'nothing to commit')
             git_status_before_grep_exit_code=$?
+            set -e
             echo "git_status_before_grep:"
             echo "$git_status_before_grep"
             echo "git_status_before_grep_exit_code: $git_status_before_grep_exit_code"
