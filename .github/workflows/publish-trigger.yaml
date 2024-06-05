@@ -29,120 +29,12 @@ jobs:
           contents: write
 
         steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-
-        - name: Set up Python
-          uses: actions/setup-python@v5
+        - name: handle Python Package Publish
+          uses: bitovi/github-actions-publish-github-pypi-handler@main
           with:
-            python-version: 3.12
+            name: ${{ inputs.name }}
+            version: ${{ inputs.version }}
+            archive_url: ${{ inputs.archive_url }}
+            commit_branch: ${{ inputs.commit_branch }}
 
-        - name: upsert-package
-          env:
-            python_service_name: "${{ inputs.name }}"
-            python_service_version: "${{ inputs.version }}"
-            python_service_archive_url: "${{ inputs.archive_url }}"
-            commit_branch: "${{ inputs.commit_branch }}"
-            root_dir: "pypi"
-            base_url: "https://bitovi.github.io/PyPI"
-          run: python src/main.py
-
-        - name: commit changes
-          env:
-            GH_TOKEN: ${{ github.token }}
-          run: |
-            echo "configure git"
-            git config user.email "github-actions-triggers-allowed[bot]@users.noreply.github.com"
-            git config user.name "github-actions[bot]"
-  
-            echo "git status - before"
-            git status
-
-            git_status_before=$(git status)
-            echo "git_status_before:"
-            echo "$git_status_before"
-
-            set +e
-            git_status_before_grep=$(echo $git_status_before | grep 'nothing to commit')
-            git_status_before_grep_exit_code=$?
-            set -e
-            echo "git_status_before_grep:"
-            echo "$git_status_before_grep"
-            echo "git_status_before_grep_exit_code: $git_status_before_grep_exit_code"
-
-            # if the exit code is greater than zero or if the string is empty, then there are changes to commit
-            # there_are_changes_to_commit=[ $git_status_before_grep_exit_code -gt 0 ]
-
-            # check if there are any changes to commit
-            if [ $git_status_before_grep_exit_code -eq 0 ]; then
-              echo "No changes to commit"
-              exit 0
-            fi
-
-            current_branch_name="$(git rev-parse --abbrev-ref HEAD)"
-            echo "current_branch_name=${current_branch_name}"
-
-            branch_is_new=""
-            inputs_commit_branch_exists=$(git branch --list "${{ inputs.commit_branch }}")
-            if [ "${{ inputs.commit_branch }}" == "auto" ]; then
-              echo "git checkout -b pypi-${{ github.run_id }}"
-              git checkout -b "pypi-${{ github.run_id }}"
-              branch_is_new="true"
-            else
-              # check if branch exists remotely, and create it if it does not
-              if [ -z "${inputs_commit_branch_exists}" ]; then
-                echo "git checkout -b ${{ inputs.commit_branch }}"
-                git checkout -b "${{ inputs.commit_branch }}"
-                branch_is_new="true"
-              else
-                echo "git checkout ${{ inputs.commit_branch }}"
-                git checkout "${{ inputs.commit_branch }}"
-              fi
-            fi
             
-            echo "git add pypi/."
-            git add pypi/.
-    
-            # tmp file for commit message
-            commit_message_file="$(mktemp)"
-            echo "PyPI Package Upsert" > "${commit_message_file}"
-            echo "{ \"name\": \"${{ inputs.name }}\", \"version\": \"${{ inputs.version }}\", \"archive_url\": \"${{ inputs.archive_url }}\" }" >> "${commit_message_file}"
-
-            commit_message="$(cat ${commit_message_file})"
-
-            echo "commit message:"
-            echo "${commit_message}"
-    
-            git commit -m "${commit_message}"
-    
-            echo "git status - after"
-            git status
-
-
-    
-            echo "git push"
-            if [ "${branch_is_new}" == "true" ]; then
-              git push -u origin HEAD
-            else
-              git push
-            fi
-
-
-            # create a PR
-            echo "creating PR"
-            pr_title="PyPI - Upsert Package: ${{ inputs.name }} - ${{ inputs.version }}"
-            pr_body="The package has a version update to be published to PyPI.
-            {
-              \"name\": \"${{ inputs.name }}\",
-              \"version\": \"${{ inputs.version }}\",
-              \"archive_url\": \"${{ inputs.archive_url }}\"
-            }
-
-            This PR was created by a [workflow](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${{ github.run_id }}) triggered by a commit [${GITHUB_SHA}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}).
-            "
-
-            target_branch="${GITHUB_BASE_REF}"
-            echo "gh pr create --title \"$pr_title\" --body \"$pr_body\" --base $current_branch_name"
-            gh pr create --title "$pr_title" --body "$pr_body" --base $current_branch_name
-
-         

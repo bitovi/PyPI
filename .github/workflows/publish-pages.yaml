@@ -24,14 +24,6 @@ jobs:
           url: ${{ steps.deployment.outputs.page_url }}
 
         steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-
-        - name: 'upload'
-          uses: actions/upload-pages-artifact@v3
-          with: 
-            path: pypi/
-
-        - name: Deploy to GitHub Pages
-          id: deployment
-          uses: actions/deploy-pages@v4
+        - id: deployment
+          name: deployment
+          uses: bitovi/github-actions-static-pypi-to-github-pages@main
