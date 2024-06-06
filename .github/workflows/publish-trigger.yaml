@@ -40,6 +40,5 @@ jobs:
             archive_url: ${{ inputs.archive_url }}
             commit_branch: ${{ inputs.commit_branch }}
             archive_sha256: ${{ inputs.archive_sha256 }}
-            pypi_base_url: "https://bitovi.github.io/PyPI"
 
             
