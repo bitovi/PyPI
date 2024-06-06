@@ -17,6 +17,9 @@ on:
         description: 'Branch to commit the changes to. Special word "auto" (default) will create a new branch and PR with the name "pypi-{github.run_id}"'
         required: false
         default: 'auto'
+      archive_sha256:
+        description: 'SHA256 of the archive'
+        required: false
 
 
 
@@ -36,5 +39,6 @@ jobs:
             version: ${{ inputs.version }}
             archive_url: ${{ inputs.archive_url }}
             commit_branch: ${{ inputs.commit_branch }}
+            archive_sha256: ${{ inputs.archive_sha256 }}
 
             
